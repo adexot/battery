@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Battery Meter</title>
+    <style>
+        .battery {
+            width: 100px;
+            height: 200px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .battery-top {
+            position: relative;
+            height: 5%;
+            width: 30px;
+            background-color: #888;
+            margin: 0 auto;
+        }
+
+        .battery-body {
+            width: 100%;
+            height: 95%;
+            background-color: #f1f1f1;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .battery-level {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 10%;
+            border-bottom-left-radius: 3px;
+            border-bottom-right-radius: 3px;
+            transition: height .5s linear;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="battery">
+            <div class="battery-top"></div>
+            <div class="battery-body">
+                <div class="battery-level"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const setStylesOnElement = function (element, styles) {
+            Object.assign(element.style, styles);
+        }
+
+        const batteryPercent = (battery) => {
+            return `${battery}%`;
+        }
+
+        const updateLevel = (battery) => {
+            let batteryLevel = parseInt(battery.level * 100);
+            const levelColor = {
+                green: '#69f0ae',
+                yellow: '#ffff78',
+                red: '#ff6e40',
+                transparent: 'transparent',
+            };
+            
+            if (batteryLevel > 50) {
+
+                setStylesOnElement(document.querySelector('.battery-level'), { height: batteryPercent(batteryLevel), backgroundColor: levelColor.green });
+                return;
+            }
+            if (batteryLevel > 30) {
+                setStylesOnElement(document.querySelector('.battery-level'), { height: batteryPercent(batteryLevel), backgroundColor: levelColor.yellow });
+                return;
+            }
+            if (batteryLevel > 0) {
+                setStylesOnElement(document.querySelector('.battery-level'), { height: batteryPercent(batteryLevel), backgroundColor: levelColor.red });
+                return;
+            }
+            else {
+                setStylesOnElement(document.querySelector('.battery-level'), { height: batteryPercent(batteryLevel), backgroundColor: levelColor.transparent });
+            }
+        }
+
+
+
+        navigator.getBattery().then((battery) => {
+            updateLevel(battery);
+            
+            battery.addEventListener('levelchange', function () {
+                updateLevel(battery);
+            });
+        });
+
+
+
+    </script>
+</body>
+
+</html>
