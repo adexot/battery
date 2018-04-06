@@ -40,6 +40,16 @@
             border-bottom-right-radius: 3px;
             transition: height .5s linear;
         }
+
+        .battery-percent{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            color: rgba(255,255,255,0.8);
+            text-shadow: 0 2px 4px rgba(0,0,0, 0.1);
+        }
     </style>
 </head>
 
@@ -49,6 +59,7 @@
             <div class="battery-top"></div>
             <div class="battery-body">
                 <div class="battery-level"></div>
+                <div class="battery-percent">0%</div>
             </div>
         </div>
     </div>
@@ -63,28 +74,31 @@
 
         const updateLevel = (battery) => {
             let batteryLevel = parseInt(battery.level * 100);
+            const $batteryLevel = document.querySelector('.battery-level');
+            const $batteryPercent = document.querySelector('.battery-percent');
             const levelColor = {
                 green: '#69f0ae',
                 yellow: '#ffff78',
                 red: '#ff6e40',
                 transparent: 'transparent',
             };
+
+            $batteryPercent.innerText = `${batteryLevel}%`;
             
             if (batteryLevel > 50) {
-
-                setStylesOnElement(document.querySelector('.battery-level'), { height: batteryPercent(batteryLevel), backgroundColor: levelColor.green });
+                setStylesOnElement($batteryLevel, { height: batteryPercent(batteryLevel), backgroundColor: levelColor.green });
                 return;
             }
             if (batteryLevel > 30) {
-                setStylesOnElement(document.querySelector('.battery-level'), { height: batteryPercent(batteryLevel), backgroundColor: levelColor.yellow });
+                setStylesOnElement($batteryLevel, { height: batteryPercent(batteryLevel), backgroundColor: levelColor.yellow });
                 return;
             }
             if (batteryLevel > 0) {
-                setStylesOnElement(document.querySelector('.battery-level'), { height: batteryPercent(batteryLevel), backgroundColor: levelColor.red });
+                setStylesOnElement($batteryLevel, { height: batteryPercent(batteryLevel), backgroundColor: levelColor.red });
                 return;
             }
             else {
-                setStylesOnElement(document.querySelector('.battery-level'), { height: batteryPercent(batteryLevel), backgroundColor: levelColor.transparent });
+                setStylesOnElement($batteryLevel, { height: batteryPercent(batteryLevel), backgroundColor: levelColor.transparent });
             }
         }
 
