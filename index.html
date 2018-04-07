@@ -7,11 +7,18 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Battery Meter</title>
     <style>
+        .container {
+            width: 100%;
+            height: 100%;
+        }
+
         .battery {
             width: 100px;
             height: 200px;
-            margin: 20px auto;
-            position: relative;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .battery-top {
@@ -28,6 +35,7 @@
             background-color: #f1f1f1;
             border-radius: 3px;
             position: relative;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
 
         .battery-level {
@@ -41,14 +49,46 @@
             transition: height .5s linear;
         }
 
-        .battery-percent{
+        .battery-percent {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 2em;
-            color: rgba(255,255,255,0.8);
-            text-shadow: 0 2px 4px rgba(0,0,0, 0.5);
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 3;
+        }
+
+        .battery-details {
+            width: 100%;
+            text-align: center;
+            color: #000;
+            margin-top: 10px;
+        }
+
+        .battery-charging-bar {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            bottom: 0;
+            border-bottom: 2px solid #fff;
+            -webkit-filter: blur(3px);
+            -moz-filter: blur(3px);
+            -o-filter: blur(3px);
+            -ms-filter: blur(3px);
+            filter: blur(3px);
+            animation: charging 2s linear infinite;
+        }
+
+        @keyframes charging {
+            from{
+                transform: translateY(0);
+            }
+            to{
+                transform: translateY(-100%);
+            }
         }
     </style>
 </head>
@@ -58,9 +98,12 @@
         <div class="battery">
             <div class="battery-top"></div>
             <div class="battery-body">
-                <div class="battery-level"></div>
+                <div class="battery-level">
+                    <div class="battery-charging-bar"></div>
+                </div>
                 <div class="battery-percent">0%</div>
             </div>
+            <div class="battery-details">Not Charging</div>
         </div>
     </div>
     <script>
@@ -76,6 +119,7 @@
             let batteryLevel = parseInt(battery.level * 100);
             const $batteryLevel = document.querySelector('.battery-level');
             const $batteryPercent = document.querySelector('.battery-percent');
+
             const levelColor = {
                 green: '#69f0ae',
                 yellow: '#ffff78',
@@ -84,7 +128,7 @@
             };
 
             $batteryPercent.innerText = `${batteryLevel}%`;
-            
+
             if (batteryLevel > 50) {
                 setStylesOnElement($batteryLevel, { height: batteryPercent(batteryLevel), backgroundColor: levelColor.green });
                 return;
@@ -97,18 +141,36 @@
                 setStylesOnElement($batteryLevel, { height: batteryPercent(batteryLevel), backgroundColor: levelColor.red });
                 return;
             }
-            else {
-                setStylesOnElement($batteryLevel, { height: batteryPercent(batteryLevel), backgroundColor: levelColor.transparent });
-            }
+
+            setStylesOnElement($batteryLevel, { height: batteryPercent(batteryLevel), backgroundColor: levelColor.transparent });
+            return;
         }
 
+        const updateChargeInfo = (battery) => {
+            const $batteryDetails = document.querySelector('.battery-details');
+            const $batteryChargingBar = document.querySelector('.battery-charging-bar');
 
+            if (battery.charging) {
+                $batteryDetails.innerText = 'Charging';
+                setStylesOnElement($batteryChargingBar, { display: 'block' });
+                return
+            }
+
+            setStylesOnElement($batteryChargingBar, { display: 'none' });
+            $batteryDetails.innerText = 'Not Charging';
+            return;
+        }
 
         navigator.getBattery().then((battery) => {
             updateLevel(battery);
-            
+            updateChargeInfo(battery);
+
             battery.addEventListener('levelchange', function () {
                 updateLevel(battery);
+            });
+
+            battery.addEventListener('chargingchange', function () {
+                updateChargeInfo(battery);
             });
         });
 
